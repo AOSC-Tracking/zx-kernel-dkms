@@ -54,6 +54,9 @@ static const struct drm_framebuffer_funcs zx_fb_funcs =
 
 struct drm_zx_framebuffer*
 __zx_framebuffer_create(struct drm_device *dev,
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+                        const struct drm_format_info *format_info,
+#endif
                         struct drm_mode_fb_cmd2 *mode_cmd,
                         struct drm_zx_gem_object *obj)
 {
@@ -65,8 +68,10 @@ __zx_framebuffer_create(struct drm_device *dev,
 
 #if DRM_VERSION_CODE < KERNEL_VERSION(4, 11, 0)
     drm_helper_mode_fill_fb_struct(&zxfb->base, mode_cmd);
-#else
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 17, 0)
     drm_helper_mode_fill_fb_struct(dev, &zxfb->base, mode_cmd);
+#else
+    drm_helper_mode_fill_fb_struct(dev, &zxfb->base, format_info, mode_cmd);
 #endif
     zxfb->obj = obj;
 
@@ -83,6 +88,9 @@ err_free:
 struct drm_framebuffer *
 zx_fb_create(struct drm_device *dev,
               struct drm_file *file,
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+              const struct drm_format_info *format_info,
+#endif
 #if DRM_VERSION_CODE < KERNEL_VERSION(4, 5, 0)
               struct drm_mode_fb_cmd2 *user_mode_cmd
 #else
@@ -107,7 +115,11 @@ zx_fb_create(struct drm_device *dev,
         return ERR_PTR(-EINVAL);
     }
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 17, 0)
     fb = __zx_framebuffer_create(dev, mode_cmd, obj);
+#else
+    fb = __zx_framebuffer_create(dev, format_info, mode_cmd, obj);
+#endif
     if (IS_ERR(fb))
         zx_gem_object_put(obj);
 
