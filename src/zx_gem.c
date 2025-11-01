@@ -1670,7 +1670,8 @@ static vm_fault_t zx_gem_ram_insert(struct vm_area_struct *vma, unsigned long ad
 
 
         retval= vmf_insert_mixed(vma, address,
-#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) && !(defined(YHQILIN) && DRM_VERSION_CODE == KERNEL_VERSION(4, 9, 0))
+#if (DRM_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) && LINUX_VERSION_CODE < KERNEL_VERSION(6, 17, 0)) && \
+    !(defined(YHQILIN) && DRM_VERSION_CODE == KERNEL_VERSION(4, 9, 0))
               __pfn_to_pfn_t(pfn, PFN_DEV));
 #else
               pfn);

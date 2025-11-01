@@ -164,7 +164,11 @@ static int zxfb_create(struct drm_fb_helper *helper, struct drm_fb_helper_surfac
         mode_cmd->height = sizes->surface_height;
         mode_cmd->pitches[0] = obj->info.pitch;
         mode_cmd->pixel_format = drm_mode_legacy_fb_format(sizes->surface_bpp, sizes->surface_depth);
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 17, 0)
         fb = __zx_framebuffer_create(dev, mode_cmd, obj);
+#else
+        fb = __zx_framebuffer_create(dev, drm_format_info(mode_cmd->pixel_format), mode_cmd, obj);
+#endif
         fbdev->fb = fb;
         disp_enable_disable_linear_vga(disp_info, linear_status, 1);
 
