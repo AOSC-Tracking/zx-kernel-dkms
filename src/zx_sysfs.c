@@ -212,7 +212,11 @@ const struct attribute *zx_os_gpu_info[] = {
     NULL
 };
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
 static ssize_t zx_sysfs_trace_read(struct file *filp, struct kobject *kobj, struct bin_attribute *bin_attr, char *buf, loff_t pos, size_t size)
+#else
+static ssize_t zx_sysfs_trace_read(struct file *filp, struct kobject *kobj, const struct bin_attribute *bin_attr, char *buf, loff_t pos, size_t size)
+#endif
 {
     struct pci_dev*    pdev    = to_pci_dev(kobj_to_dev(kobj));
     struct drm_device* drm_dev = pci_get_drvdata(pdev);
@@ -231,7 +235,11 @@ static ssize_t zx_sysfs_trace_read(struct file *filp, struct kobject *kobj, stru
     return ret;
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
 static ssize_t zx_sysfs_trace_write(struct file *filp, struct kobject *kobj, struct bin_attribute *bin_attr, char *buf, loff_t pos, size_t size)
+#else
+static ssize_t zx_sysfs_trace_write(struct file *filp, struct kobject *kobj, const struct bin_attribute *bin_attr, char *buf, loff_t pos, size_t size)
+#endif
 {
     struct pci_dev*    pdev    = to_pci_dev(kobj_to_dev(kobj));
     struct drm_device* drm_dev = pci_get_drvdata(pdev);
