@@ -20,8 +20,9 @@
 #include "os_interface.h"
 #include "zx_gem_debug.h"
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0) || \
-    DRM_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+#if ((LINUX_VERSION_CODE >= KERNEL_VERSION(4, 5, 0)) || \
+     (DRM_VERSION_CODE >= KERNEL_VERSION(4, 10, 0))) && \
+    (LINUX_VERSION_CODE < KERNEL_VERSION(6, 17, 0))
 #include <linux/pfn_t.h>
 #else
 typedef struct {
