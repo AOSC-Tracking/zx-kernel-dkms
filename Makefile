@@ -1,11 +1,11 @@
 
 TARGET_ARCH ?= x86_64
 DEBUG ?= 0
-EXTRA_CFLAGS += -Wall -fno-strict-aliasing -Wno-undef -Wno-unused -Wno-missing-braces -Wno-missing-attributes -Wno-overflow -Wno-missing-prototypes -Wno-missing-declarations -Werror -DZX_PCIE_BUS -DNEW_ZXFB -D__LINUX__
+ccflags-y += -Wall -fno-strict-aliasing -Wno-undef -Wno-unused -Wno-missing-braces -Wno-missing-attributes -Wno-overflow -Wno-missing-prototypes -Wno-missing-declarations -Werror -DZX_PCIE_BUS -DNEW_ZXFB -D__LINUX__
 ifeq ($(DEBUG), 1)
-	EXTRA_CFLAGS += -ggdb3 -O2 -D_DEBUG_ -DZX_TRACE_EVENT=0
+	ccflags-y += -ggdb3 -O2 -D_DEBUG_ -DZX_TRACE_EVENT=0
 else
-	EXTRA_CFLAGS += -O2 -fno-strict-aliasing -DZX_TRACE_EVENT=1
+	ccflags-y += -O2 -fno-strict-aliasing -DZX_TRACE_EVENT=1
 endif
 
 BIN_TYPE ?= $(shell uname -m |sed -e s/i.86/i386/)
@@ -25,11 +25,11 @@ ifneq (,$(DRM_VER))
 DRM_PATCH=$(shell sed -n 's/^RHEL_DRM_PATCHLEVEL = \(.*\)/\1/p' $(LINUXDIR)/Makefile)
 DRM_SUBLEVEL=$(shell sed -n 's/^RHEL_DRM_SUBLEVEL = \(.*\)/\1/p' $(LINUXDIR)/Makefile)
 DRM_CODE=$(shell expr $(DRM_VER) \* 65536 + 0$(DRM_PATCH) \* 256 + 0$(DRM_SUBLEVEL))
-EXTRA_CFLAGS += -DDRM_VERSION_CODE=$(DRM_CODE)
+ccflags-y += -DDRM_VERSION_CODE=$(DRM_CODE)
 endif
 
 ifeq ($(YHQILINOS), YHKYLIN-OS)
-EXTRA_CFLAGS += -DYHQILIN
+ccflags-y += -DYHQILIN
 KERNEL_VERSION_NUM := $(shell echo $(KERNEL_VERSION) | cut -d - -f1)
 ifeq (,$(DRM_VER))
 ifeq ($(KERNEL_VERSION_NUM), 4.4.131)
@@ -37,7 +37,7 @@ DRM_VER=4
 DRM_PATCH=9
 DRM_SUBLEVEL=0
 DRM_CODE=$(shell expr $(DRM_VER) \* 65536 + 0$(DRM_PATCH) \* 256 + 0$(DRM_SUBLEVEL))
-EXTRA_CFLAGS += -DDRM_VERSION_CODE=$(DRM_CODE)
+ccflags-y += -DDRM_VERSION_CODE=$(DRM_CODE)
 endif
 endif
 endif
@@ -95,7 +95,7 @@ ZX_OBJ_LIST:= \
 zx-objs := $(addprefix $(ZX_SRC_DIR_O)/,$(ZX_OBJ_LIST))
 
 ## for cbios
-EXTRA_CFLAGS += -I${ZXGPU_FULL_PATH}/src/cbios \
+ccflags-y += -I${ZXGPU_FULL_PATH}/src/cbios \
              -I${ZXGPU_FULL_PATH}/src/cbios/Callback \
              -I${ZXGPU_FULL_PATH}/src/cbios/Device \
              -I${ZXGPU_FULL_PATH}/src/cbios/Device/Port \
