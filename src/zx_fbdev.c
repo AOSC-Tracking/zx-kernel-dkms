@@ -264,7 +264,9 @@ static const struct drm_fb_helper_funcs zx_fb_helper_funcs = {
     .gamma_set          = zx_crtc_fb_gamma_set,
     .gamma_get          = zx_crtc_fb_gamma_get,
 #endif
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
     .fb_probe           = zxfb_create,
+#endif
 #if DRM_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
     .fb_dirty           = zxfb_dirty,
 #endif
