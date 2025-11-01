@@ -294,7 +294,11 @@ END:
 }
 
 enum drm_mode_status 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
 zx_connector_mode_valid(struct drm_connector *connector, struct drm_display_mode *mode)
+#else
+zx_connector_mode_valid(struct drm_connector *connector, const struct drm_display_mode *mode)
+#endif
 {
     struct drm_device *dev = connector->dev;
     zx_card_t *zx_card = dev->dev_private;
