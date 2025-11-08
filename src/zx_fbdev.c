@@ -129,7 +129,9 @@ static int zxfb_create(struct drm_fb_helper *helper, struct drm_fb_helper_surfac
     DRM_DEBUG_KMS("fb_width=%d,fb_height=%d,surface_width=%d,surface_height=%d,surface_bpp=%d,surface_depth=%d\n",
             sizes->fb_width, sizes->fb_height, sizes->surface_width, sizes->surface_height, sizes->surface_bpp, sizes->surface_depth);
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 18, 0)
     mutex_lock(&dev->struct_mutex);
+#endif
 
     if (fb && (sizes->fb_width > fb->base.width || sizes->fb_height > fb->base.height))
     {
@@ -243,7 +245,9 @@ static int zxfb_create(struct drm_fb_helper *helper, struct drm_fb_helper_surfac
     DRM_DEBUG_KMS("screen_base=0x%p,screen_size=0x%lx,smem_start=0x%lx,smem_len=0x%x,xres=%d,yres=%d\n",
             info->screen_base, info->screen_size, info->fix.smem_start, info->fix.smem_len, info->var.xres, info->var.yres);
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 18, 0)
     mutex_unlock(&dev->struct_mutex);
+#endif
     return 0;
 }
 
