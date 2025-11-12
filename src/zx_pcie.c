@@ -41,6 +41,14 @@
 #endif
 #endif
 
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+#if __has_include(<drm/clients/drm_client_setup.h>)
+#include <drm/clients/drm_client_setup.h>
+#else
+#include <drm/drm_client_setup.h>
+#endif
+#endif
+
 #define DRIVER_NAME         "zx"
 #define DRIVER_DESC         "ZX DRM Pro"
 
@@ -634,6 +642,9 @@ static struct drm_zx_driver zx_drm_driver = {
         .major              = DRIVER_MAJOR,
         .minor              = DRIVER_MINOR,
         .patchlevel         = DRIVER_PATCHLEVEL,
+    #if DRM_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+        .fbdev_probe        = zx_fbdev_probe,
+    #endif
     }
 };
 
@@ -670,6 +681,10 @@ static int zx_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
     ret = drm_dev_register(dev, ent->driver_data);
     if (ret)
             goto err_pci;
+
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6,15,0)
+    drm_client_setup(dev, NULL);
+#endif
 
     return 0;
 
