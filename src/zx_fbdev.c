@@ -114,7 +114,7 @@ static void zx_crtc_fb_gamma_get(struct drm_crtc *crtc, u16 *red, u16 *green, u1
 }
 #endif
 
-static int zxfb_create(struct drm_fb_helper *helper, struct drm_fb_helper_surface_size *sizes)
+static int zx_fbdev_probe(struct drm_fb_helper *helper, struct drm_fb_helper_surface_size *sizes)
 {
     int ret = 0;
     struct fb_info *info;
@@ -273,7 +273,7 @@ static const struct drm_fb_helper_funcs zx_fb_helper_funcs = {
     .gamma_get          = zx_crtc_fb_gamma_get,
 #endif
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
-    .fb_probe           = zxfb_create,
+    .fb_probe           = zx_fbdev_probe,
 #endif
 #if DRM_VERSION_CODE >= KERNEL_VERSION(6, 2, 0)
     .fb_dirty           = zxfb_dirty,
