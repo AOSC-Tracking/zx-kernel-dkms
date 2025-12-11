@@ -5663,16 +5663,16 @@ CBIOS_VOID cbMode_GetFilterPara(PCBIOS_VOID pvcbe, CBIOS_ACTIVE_TYPE Device, PCB
     PCBIOS_VOID                pDPMonitorContext = CBIOS_NULL;
     CBIOS_U8                   DRAMModeFlag = 0;
     CBIOS_U32                  SupportMaxDclk = 0;
-    
-    
+    CBIOS_BOOL                 bRetimerUsed = CBIOS_FALSE;
+
     MonitorType = pDevCommon->CurrentMonitorType;
 
-    if((pcbe->SysBiosInfo.RevisionID == 0x10) && (MonitorType == CBIOS_MONITOR_TYPE_HDMI))
+    if(pcbe->SysBiosInfo.RevisionID == 0x10)
     {
-        if(((Device == CBIOS_TYPE_DP5) && !pcbe->SysBiosInfo.bDP1ReTimerUsed)
-            || ((Device == CBIOS_TYPE_DP6) && !pcbe->SysBiosInfo.bDP2ReTimerUsed))
+        if(((Device == CBIOS_TYPE_DP5) && pcbe->SysBiosInfo.bDP1ReTimerUsed)
+            || ((Device == CBIOS_TYPE_DP6) && pcbe->SysBiosInfo.bDP2ReTimerUsed))
         {
-            pcbe->ChipLimits.ulMaxHDMIClock = 1485000;
+            bRetimerUsed = CBIOS_TRUE;
         }
     }
 
@@ -5682,7 +5682,7 @@ CBIOS_VOID cbMode_GetFilterPara(PCBIOS_VOID pvcbe, CBIOS_ACTIVE_TYPE Device, PCB
         pFilter->MaxDclk = 1650000;
         break;
     case CBIOS_MONITOR_TYPE_HDMI:
-        pFilter->MaxDclk = pcbe->ChipLimits.ulMaxHDMIClock;
+        pFilter->MaxDclk = (pcbe->SysBiosInfo.RevisionID != 0x10 || bRetimerUsed) ? pcbe->ChipLimits.ulMaxHDMIClock : 1485000;
         break;
     case CBIOS_MONITOR_TYPE_MHL:
         pFilter->MaxDclk = pcbe->ChipLimits.ulMaxMHLClock;

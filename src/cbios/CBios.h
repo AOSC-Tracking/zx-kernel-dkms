@@ -1536,9 +1536,10 @@ typedef  struct  _PCBIOS_VBINFO_PARAM
         CBIOS_U32              SnoopOnly      :1;
         CBIOS_U32              bDisableHDAudioCodec1 :1;
         CBIOS_U32              bDisableHDAudioCodec2 :1;
-        CBIOS_U32              bTAEnable              :1;
+        CBIOS_U32              bTAEnable             :1;
         CBIOS_U32              bHighPerformance      :1;
-        CBIOS_U32              Reserved1      :27;
+        CBIOS_U32              bBlGfxMode            :1;
+        CBIOS_U32              Reserved1      :26;
     };
 
 }CBIOS_VBINFO_PARAM, *PCBIOS_VBINFO_PARAM;

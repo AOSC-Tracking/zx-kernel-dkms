@@ -4179,8 +4179,15 @@ CBIOS_BOOL cbUpdateShadowInfo_chx(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_PARAM_SHA
                 pcbe->SysBiosInfo.ICLK = pSysInfo->ICLK;
                 pcbe->SysBiosInfo.RevisionID = pSysInfo->RevisionID;
                 pcbe->SysBiosInfo.bBLGfxMode = pSysInfo->bBLGfxMode;
-                pcbe->SysBiosInfo.bDP1ReTimerUsed = pSysInfo->bDP1ReTimerUsed;
-                pcbe->SysBiosInfo.bDP2ReTimerUsed = pSysInfo->bDP2ReTimerUsed;
+                if (pSysInfo->Header.Version >= 0x12)
+                {
+                    pcbe->SysBiosInfo.bDP1ReTimerUsed = pSysInfo->bDP1ReTimerUsed;
+                    pcbe->SysBiosInfo.bDP2ReTimerUsed = pSysInfo->bDP2ReTimerUsed;
+                }
+                else
+                {
+                    pcbe->SysBiosInfo.bDP1ReTimerUsed = pcbe->SysBiosInfo.bDP2ReTimerUsed = pSysInfo->bDP1ReTimerUsed;
+                }
 
                 // for chx009, SSCEnable(stored in systembios) = 1 means SSC Disable
                 if (pcbe->SysBiosInfo.RevisionID == 0x10)

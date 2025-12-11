@@ -22,7 +22,16 @@ zx_connector_detect_internal(struct drm_connector *connector, bool force, int Fu
     zx_begin_section_trace_event("zx_connector_detect_internal");
 
     zx_mutex_lock(zx_connector->conn_mutex);
-    detected_output = disp_cbios_detect_connected_output(disp_info, output, FullDetect);
+    //edp's detect requires time-consuming sequence when it start from power-off status, and generally edp is a
+    //physically connect device, so skip detect to save time when connector->status is connector_status_connected
+    if(connector->connector_type == DRM_MODE_CONNECTOR_eDP && connector->status == connector_status_connected)
+    {
+        detected_output = zx_connector->output_type;
+    }
+    else
+    {
+        detected_output = disp_cbios_detect_connected_output(disp_info, output, FullDetect);
+    }
     zx_mutex_unlock(zx_connector->conn_mutex);
 
     conn_status = (detected_output & output)? connector_status_connected : connector_status_disconnected;

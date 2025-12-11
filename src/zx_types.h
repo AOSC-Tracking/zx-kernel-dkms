@@ -92,6 +92,7 @@ typedef enum
     ZX_FORMAT_R16_UNORM     = 26,
     ZX_FORMAT_G16R16_UNORM     = 27,
     ZX_FORMAT_P010             = 28,
+    ZX_FORMAT_B8G8R8A8_SRGB  = 29,
 }zx_format;
 
 typedef struct

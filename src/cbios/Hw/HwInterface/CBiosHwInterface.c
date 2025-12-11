@@ -728,6 +728,8 @@ CBIOS_STATUS cbHWGetVBiosInfo(PCBIOS_VOID pvcbe, PCBIOS_VBINFO_PARAM  pVbiosInfo
     pVbiosInfo->DP5ConnectorType = pcbe->SysBiosInfo.Dp0PortConnType;
     pVbiosInfo->DP6ConnectorType = pcbe->SysBiosInfo.Dp1PortConnType;
 
+    pVbiosInfo->bBlGfxMode = pcbe->SysBiosInfo.bBLGfxMode;
+
     return CBIOS_OK;
 }
 

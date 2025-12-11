@@ -50,23 +50,50 @@ int zx_backlight_init(void* data, zx_card_t *zx)
 {
     int ret = 0;
 
-    #ifdef ZX_PCIE_BUS
+#ifdef ZX_PCIE_BUS
     struct pci_dev * pdev = (struct pci_dev *)data;
-    #else
+#else
     struct platform_device * pdev = (struct platform_device *)data;
-    #endif
+#endif
+    disp_info_t *disp_info = zx->disp_info;
+    bool skip_register = false;
 
-#ifdef CONFIG_BACKLIGHT_CLASS_DEVICE
+#if IS_ENABLED(CONFIG_BACKLIGHT_CLASS_DEVICE)
     struct backlight_properties zx_backlight_props = {0};
     zx_brightness_caps_t caps = {0};
     int max_brightness = 0xFF;
+    bool  auto_detect = false;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
-    if(acpi_video_get_backlight_type() != acpi_backlight_vendor)
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+    enum acpi_backlight_type type = acpi_backlight_none;
+
+    skip_register = true;
+    type = __acpi_video_get_backlight_type(false, &auto_detect);
+    zx_info("Backlight auto_detect : %d, type : %d.\n", auto_detect, type);
+    if(auto_detect && type == acpi_backlight_video && !disp_info->bl_gfx_mode)
+    {
+        zx_info("To register acpi video backlight.\n");
+        acpi_video_register_backlight();
+    }
+    else if((!auto_detect && type == acpi_backlight_vendor && disp_info->bl_gfx_mode)
+                 ||  (auto_detect && disp_info->bl_gfx_mode))
+    {
+        skip_register = false;
+    }
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
+    skip_register = true;
+    if(acpi_video_get_backlight_type() == acpi_backlight_vendor)
+    {
+        skip_register = false;
+    }
+#endif
+
+    if(skip_register)
     {
         return ret;
     }
-#endif
+
+    zx_info("To register acpi vendor backlight.\n");
 
     disp_cbios_query_brightness_caps(zx->disp_info, &caps);
 
@@ -97,7 +124,7 @@ int zx_backlight_init(void* data, zx_card_t *zx)
 
 void zx_backlight_deinit(zx_card_t *zx)
 {
-#ifdef CONFIG_BACKLIGHT_CLASS_DEVICE
+#if IS_ENABLED(CONFIG_BACKLIGHT_CLASS_DEVICE)
     if(zx->backlight_dev)
     {
         backlight_device_unregister(zx->backlight_dev);

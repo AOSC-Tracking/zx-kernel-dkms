@@ -188,6 +188,8 @@ typedef struct
     unsigned int     dp5_conn_type;
     unsigned int     dp6_conn_type;
 
+    int              bl_gfx_mode;
+
     int              conflict_in_linear_vga;
     int              vga_enabled;            
     

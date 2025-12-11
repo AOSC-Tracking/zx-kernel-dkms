@@ -788,11 +788,14 @@ void disp_cbios_query_vbeinfo(disp_info_t *disp_info)
 
         disp_info->dp5_conn_type = vbeinfo.DP5ConnectorType;
         disp_info->dp6_conn_type = vbeinfo.DP6ConnectorType;
+
+        disp_info->bl_gfx_mode = vbeinfo.bBlGfxMode;
       
         zx_info("bios supported device: 0x%x\n", disp_info->support_output);
         zx_info("low_top_address : 0x%x\n", adapter_info->low_top_addr);
         zx_info("snoop only: %d\n", adapter_info->snoop_only);
         zx_info("ta_enable (iov enable): %d\n", adapter_info->ta_enable);
+        zx_info("Backlight Gfx Mode: %d\n", disp_info->bl_gfx_mode);
     }
     
 }

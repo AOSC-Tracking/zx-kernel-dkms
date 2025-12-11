@@ -1268,7 +1268,7 @@ CBIOS_BOOL cbDIU_DP_LinkTrainingHw(PCBIOS_VOID pvcbe, CBIOS_MODULE_INDEX DPModul
                             DPSwingRegValue.Value = 0;
                             DPSwingRegValue.enable_SW_swing_pp = 1;
                             DPSwingRegValue.SW_swing_SW_PP_SW_post_cursor_load_index = 1;
-                            if((pcbe->SVID == 0x1D05) && (pcbe->SSID == 0xB001)) // the customer's eDP will flash when do reboot test
+                            if(((pcbe->SVID == 0x1D05) && (pcbe->SSID == 0xB001)) || ((pcbe->SVID == 0x17AA) && (pcbe->SSID == 0x3519))) // the customer's eDP will flash when do reboot test
                             {
                                 DPSwingRegValue.DP1_SW_swing = 0x07;
                                 DPSwingRegValue.DP1_SW_pp = 0x0;
