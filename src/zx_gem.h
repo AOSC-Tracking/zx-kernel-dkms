@@ -64,7 +64,8 @@ struct drm_zx_gem_object
 #if DRM_VERSION_CODE >= KERNEL_VERSION(5, 11, 0)
     unsigned int vmap_mem_type;
 #endif
-
+    // use for transfer dma_buf_attachment->dev
+    struct device *attachment_dev;
 //debugfs related things
     zx_gem_debug_info_t  debug;
 };

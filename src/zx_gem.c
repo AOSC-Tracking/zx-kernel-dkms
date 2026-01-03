@@ -111,6 +111,8 @@ static struct sg_table *zx_gem_map_dma_buf(struct dma_buf_attachment *attachment
 
     zx_core_interface->prepare_and_mark_unpagable(zx->adapter, obj->core_handle, &obj->info);
 
+    obj->attachment_dev = attachment->dev;
+
     ret = zx_gem_object_pin_pages(obj);
     if (ret)
         goto err;
@@ -568,6 +570,8 @@ static int zx_gem_object_get_pages_generic(struct drm_zx_gem_object *obj)
     unsigned long last_pfn = 0;
     int i, j, area_index = 0, pages_per_area;
     zx_card_t *zx = obj->base.dev->dev_private;
+    unsigned int max_sg_len = PAGE_SIZE * MAX_ORDER_NR_PAGES;
+    struct device *attachment_dev = obj->attachment_dev;
 
     memory = zx_core_interface->get_allocation_pages(zx->adapter, obj->core_handle);
     zx_assert(memory != NULL);
@@ -589,6 +593,22 @@ static int zx_gem_object_get_pages_generic(struct drm_zx_gem_object *obj)
     i = 0;
     pages_per_area = memory->area_size / PAGE_SIZE;
 
+    if (attachment_dev) {
+#if DRM_VERSION_CODE >= KERNEL_VERSION(5, 3, 0)
+        max_sg_len = dma_max_mapping_size(attachment_dev);
+#else
+#ifdef CONFIG_SWIOTLB
+        if (swiotlb_nr_tbl())
+            max_sg_len = min_t(unsigned int, max_sg_len, IO_TLB_SEGSIZE << IO_TLB_SHIFT);
+#endif
+#endif
+       zx_info("attachment device %s: dma max mapping size: %d\n",
+                 dev_name(attachment_dev) ? dev_name(attachment_dev) : "unnamed",
+                 max_sg_len);
+    } else {
+       zx_info("not found attachment device, dma max mapping size: %d\n", max_sg_len);
+    }
+
     while(i < page_count)
     {
         zx_assert(area_index < memory->area_cnt);
@@ -597,7 +617,8 @@ static int zx_gem_object_get_pages_generic(struct drm_zx_gem_object *obj)
         for (j = 0; j < pages_per_area && i < page_count; j++)
         {
             if (i == 0 ||
-                last_pfn + 1 != page_to_pfn(area->block->pages + j))
+                last_pfn + 1 != page_to_pfn(area->block->pages + j) ||
+               sg->length == max_sg_len)
             {
                 if (i > 0)
                 {
