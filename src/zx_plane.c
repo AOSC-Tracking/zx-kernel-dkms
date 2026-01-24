@@ -528,6 +528,65 @@ void zx_plane_atomic_disable(struct drm_plane *plane, struct drm_plane_state *ol
     zx_plane_atomic_update_internal(plane, new_state);
 }
 
+#if IS_ENABLED(CONFIG_DRM_PANIC)
+int zx_get_scanout_buffer(struct drm_plane *plane, struct drm_scanout_buffer *sb)
+{
+    struct drm_device *dev = plane->dev;
+    struct drm_fb_helper *helper = dev->fb_helper;
+    struct drm_crtc *crtc = NULL;
+    struct drm_framebuffer *fb1 = NULL, *fb2 = NULL;
+
+    zx_card_t *card = dev->dev_private;
+    zx_plane_t *zx_plane = to_zx_plane(plane);
+    struct drm_zx_framebuffer *zxfb2 = NULL;
+    zx_crtc_flip_t arg = {.src_w = 300, .src_h = 300};
+
+    if (!plane->state || !plane->state->fb || zx_plane->is_cursor)
+        return -EINVAL;
+
+    if (!helper || !helper->fb || !plane->state->crtc)
+        return -EINVAL;
+
+    crtc = plane->state->crtc;
+    fb1 = plane->state->fb;
+    fb2 = helper->fb;
+    zxfb2 = to_zxfb(fb2);
+    if (!zxfb2->obj)
+        return -EINVAL;
+
+#if IS_ENABLED(CONFIG_KYLIN_KERNEL)
+    if (drm_gem_vmap_unlocked(&zxfb2->obj->base, &sb->map[0]))
+        return -EINVAL;
+#else
+    if (drm_gem_vmap(&zxfb2->obj->base, &sb->map[0]))
+        return -EINVAL;
+#endif
+    zx_memset(sb->map[0].vaddr, 0, fb2->pitches[0] * fb2->height);
+
+    arg.fb = fb2;
+    arg.stream_type = zx_plane->plane_type;
+    arg.crtc = to_zx_crtc(crtc)->pipe;
+    arg.crtc_x = 0;
+    arg.crtc_y = 0;
+    arg.crtc_w = fb1->width;
+    arg.crtc_h = fb1->height;
+    arg.src_x = 0;
+    arg.src_y = 0;
+    arg.src_w = min_t(unsigned long, fb1->width, fb2->width);
+    arg.src_h = min_t(unsigned long, fb1->height, fb2->height);
+
+    disp_cbios_crtc_flip(card->disp_info, &arg);
+    disp_wait_for_vblank(card->disp_info, arg.crtc, 50);
+
+    sb->format = fb2->format;
+    sb->height = arg.src_h;
+    sb->width = arg.src_w;
+    sb->pitch[0] = fb2->pitches[0];
+
+    return 0;
+}
+#endif
+
 #if DRM_VERSION_CODE >= KERNEL_VERSION(4, 9, 0)
 void zx_cleanup_plane_fb(struct drm_plane *plane, struct drm_plane_state *old_state)
 #else

@@ -690,7 +690,7 @@ CBIOS_STATUS cbHWGetVBiosInfo(PCBIOS_VOID pvcbe, PCBIOS_VBINFO_PARAM  pVbiosInfo
 
     pVbiosInfo->BiosVersion = pcbe->BiosVersion;
 
-    pVbiosInfo->FBSize = pcbe->SysBiosInfo.FBSize; 
+    pVbiosInfo->FBSize = 1 << (pcbe->SysBiosInfo.FBSize & 0x0F); 
         
 
     //Get Revision ID / Device ID

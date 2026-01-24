@@ -5,6 +5,11 @@
 #include "zx_cbios.h"
 #include "zx_fence.h"
 
+#if IS_ENABLED(CONFIG_DRM_PANIC)
+#include <drm/drm_panic.h>
+int zx_get_scanout_buffer(struct drm_plane *plane,struct drm_scanout_buffer *sb);
+#endif
+
 #if DRM_VERSION_CODE >= KERNEL_VERSION(5, 14, 0)
 
 bool zx_plane_format_mod_supported(struct drm_plane *plane, uint32_t format,

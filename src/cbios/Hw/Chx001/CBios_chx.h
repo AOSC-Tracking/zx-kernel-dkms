@@ -127,7 +127,8 @@ typedef struct _SYSBIOSInfo_chx
         CBIOS_U32   bBLGfxMode            :1;
         CBIOS_U32   bDP1ReTimerUsed       :1;
         CBIOS_U32   bDP2ReTimerUsed       :1;
-        CBIOS_U32   Reserved11            :24;
+        CBIOS_U32   bInvertPwmBL          :1;
+        CBIOS_U32   Reserved11            :23;
     };
     CBIOS_U32   ECLK;
     CBIOS_U32   VCLK;

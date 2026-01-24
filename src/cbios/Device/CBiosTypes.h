@@ -258,7 +258,8 @@ typedef struct _Shadow_Info
         CBIOS_U32   bBLGfxMode            :1;
         CBIOS_U32   bDP1ReTimerUsed       :1;
         CBIOS_U32   bDP2ReTimerUsed       :1;
-        CBIOS_U32   Reserved              :24;
+        CBIOS_U32   bInvertPwmBL          :1;
+        CBIOS_U32   Reserved              :23;
     };
     CBIOS_U32   ECLK;
     CBIOS_U32   VCLK;

@@ -776,6 +776,8 @@ void disp_cbios_query_vbeinfo(disp_info_t *disp_info)
             {
                 adapter_info->snoop_only = 1;
             }
+
+            adapter_info->avai_mem_size_mb = vbeinfo.FBSize;
         }
        
         disp_info->support_output = vbeinfo.SupportDev;

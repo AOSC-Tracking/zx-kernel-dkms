@@ -235,6 +235,7 @@ typedef  struct
         unsigned int low_top_addr;
         unsigned int snoop_only;
         unsigned int ta_enable;
+        unsigned int avai_mem_size_mb;
     };
 }adapter_info_t;
 

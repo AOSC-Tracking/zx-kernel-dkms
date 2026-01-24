@@ -4183,6 +4183,7 @@ CBIOS_BOOL cbUpdateShadowInfo_chx(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_PARAM_SHA
                 {
                     pcbe->SysBiosInfo.bDP1ReTimerUsed = pSysInfo->bDP1ReTimerUsed;
                     pcbe->SysBiosInfo.bDP2ReTimerUsed = pSysInfo->bDP2ReTimerUsed;
+                    pcbe->SysBiosInfo.bInvertPwmBL = pSysInfo->bInvertPwmBL;
                 }
                 else
                 {
@@ -4233,7 +4234,7 @@ CBIOS_BOOL cbUpdateShadowInfo_chx(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_PARAM_SHA
                     pcbe->SysBiosInfo.Dp0PortConnType = CBIOS_DP_CONN;
                     pcbe->SysBiosInfo.Dp1PortConnType = CBIOS_DP_CONN;
                 }
-                
+
                 cbGetSysBiosInfo(pcbe);
                 cbDebugPrint((MAKE_LEVEL(GENERIC, INFO), "cbUpdateShadowInfo_chx: FBSize = %dM DRAMMode = %d bSnoopOnly = %d\n", (1 << (pcbe->SysBiosInfo.FBSize & 0x0F)), (pcbe->SysBiosInfo.DRAMMode & BIT0),pcbe->SysBiosInfo.SnoopOnly));
                 cbDebugPrint((MAKE_LEVEL(GENERIC, INFO), "ShadowInfoVer:0x%x, VgaPort:%d, Dp0Port:%d, Dp1Port:%d.\n", pSysInfo->Header.Version, pcbe->SysBiosInfo.VgaPortConnType,

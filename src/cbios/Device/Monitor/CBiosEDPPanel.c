@@ -247,7 +247,10 @@ CBIOS_STATUS cbEDPPanel_SetBacklight(PCBIOS_VOID pvcbe, CBIOS_MODULE_INDEX DPMod
             cbDebugPrint((MAKE_LEVEL(DP, WARNING), "%s: backlight value: %d is greater than the max backlight value, use the max.\n", FUNCTION_NAME, BacklightValue));
             BlValue = pEDPCaps->BacklightMax;
         }
-
+        if (pcbe->SysBiosInfo.bInvertPwmBL)
+        {
+            BlValue = pEDPCaps->BacklightMax - BlValue + pEDPCaps->BacklightMin;
+        }
         max_backlight_value = (pEDPCaps->BacklightMax == 0) ? 0xFF : pEDPCaps->BacklightMax;
 
         if (pPanelDesc->pFnEDPPanelSetBacklight!= CBIOS_NULL)
@@ -305,6 +308,7 @@ CBIOS_STATUS cbEDPPanel_GetBacklight(PCBIOS_VOID pvcbe, CBIOS_MODULE_INDEX DPMod
     CBIOS_STATUS Status = CBIOS_OK;
     REG_MM333D8 RegMM333D8_Value, RegMM333D8_Mask;
     CBIOS_U32 BlValue = 0, pwm_frequency_counter = 0, max_backlight_value = 0;
+    CBIOS_U32 BacklightMax = 0, BacklightMin = 0, BacklightValue = 0;
 
     if (pPanelDesc != CBIOS_NULL)
     {
@@ -321,6 +325,13 @@ CBIOS_STATUS cbEDPPanel_GetBacklight(PCBIOS_VOID pvcbe, CBIOS_MODULE_INDEX DPMod
             pwm_frequency_counter = (RegMM333D8_Value.PWM_frequency_counter == 0) ? 0xFFFF : RegMM333D8_Value.PWM_frequency_counter + 1;
 
             *pBacklightValue = (BlValue * max_backlight_value) / pwm_frequency_counter;
+        }
+        if (pcbe->SysBiosInfo.bInvertPwmBL)
+        {
+            BacklightValue = *pBacklightValue;
+            BacklightMin = pPanelDesc->EDPCaps.BacklightMin;
+            BacklightMax = pPanelDesc->EDPCaps.BacklightMax;
+            *pBacklightValue = BacklightMax - BacklightValue + BacklightMin;
         }
     }
     else

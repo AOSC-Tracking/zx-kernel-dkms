@@ -1,10 +1,10 @@
-#define DRIVER_DATE                 "12/03/2025"
+#define DRIVER_DATE                 "12/22/2025"
 #define DRIVER_MAJOR                0x21
 #define DRIVER_MINOR                0x00
-#define DRIVER_PATCHLEVEL           0x85
+#define DRIVER_PATCHLEVEL           0x86
 #define DRIVER_CLASS                ""
 #define DRIVER_VERSION              ((DRIVER_MAJOR<<24)|(DRIVER_MINOR<<16)|DRIVER_PATCHLEVEL)
-#define DRIVER_VERSION_CHAR         "21.00.85"
+#define DRIVER_VERSION_CHAR         "21.00.86"
 #define OS_VERSION                  ""
 #define CC_VERSION                  ""
 #define LD_VERSION                  ""

@@ -109,6 +109,9 @@ static  const struct drm_plane_helper_funcs zx_plane_helper_funcs = {
     .atomic_check = zx_plane_atomic_check,
     .atomic_update = zx_plane_atomic_update,
     .atomic_disable = zx_plane_atomic_disable,
+#if IS_ENABLED(CONFIG_DRM_PANIC)
+    .get_scanout_buffer = zx_get_scanout_buffer,
+#endif
 };
 
 static const struct drm_crtc_funcs zx_crtc_funcs = {
