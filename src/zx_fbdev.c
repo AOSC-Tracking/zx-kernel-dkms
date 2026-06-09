@@ -205,8 +205,10 @@ int zx_fbdev_probe(struct drm_fb_helper *helper, struct drm_fb_helper_surface_si
 #else
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 2, 0)
     info = drm_fb_helper_alloc_fbi(helper);
-#else
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 19, 0)
     info = drm_fb_helper_alloc_info(helper);
+#else
+	info = helper->info;
 #endif
     info->par = helper;
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
