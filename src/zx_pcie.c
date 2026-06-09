@@ -408,6 +408,7 @@ static void zx_drm_postclose(struct drm_device *dev, struct drm_file *file)
     file->driver_priv = NULL;
 }
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
 void  zx_drm_last_close(struct drm_device* dev)
 {
     zx_card_t *zx = dev->dev_private;
@@ -420,6 +421,7 @@ void  zx_drm_last_close(struct drm_device* dev)
 
     drm_fb_helper_restore_fbdev_mode_unlocked(&fbdev->helper);
 }
+#endif
 
 #if DRM_VERSION_CODE < KERNEL_VERSION(4,11,0)
 static int zx_drm_device_is_agp(struct drm_device * dev)
