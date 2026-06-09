@@ -2165,9 +2165,15 @@ int zx_query_platform_caps(void *dev, platform_caps_t *caps)
     return 0;
 }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+#define SHMEM_FILE_SETUP_EMPTY_FLAG EMPTY_VMA_FLAGS
+#else
+#define SHMEM_FILE_SETUP_EMPTY_FLAG 0
+#endif
+
 void *zx_pages_memory_swapout(struct os_pages_memory *pages_memory)
 {
-    struct file          *file_storage = shmem_file_setup("zx gmem", pages_memory->size, 0);
+    struct file          *file_storage = shmem_file_setup("zx gmem", pages_memory->size, SHMEM_FILE_SETUP_EMPTY_FLAG);
     struct address_space *file_addr_space;
     struct page          **pages;
     struct page          *src_page, *dst_page;
