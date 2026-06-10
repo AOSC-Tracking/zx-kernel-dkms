@@ -328,6 +328,7 @@ int zx_fbdev_init(zx_card_t *zx)
 
     fbdev = zx_calloc(sizeof(*fbdev));
     zx_assert(fbdev != NULL);
+    zx->fbdev = fbdev;
 
     ret = zx_core_interface->create_device(zx->adapter, NULL, &fbdev->gpu_device);
     zx_assert(ret == 0);
@@ -359,7 +360,6 @@ int zx_fbdev_init(zx_card_t *zx)
     drm_fb_helper_initial_config(&fbdev->helper);
 #endif
 
-    zx->fbdev = fbdev;
 
     return 0;
 }

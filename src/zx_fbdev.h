@@ -11,8 +11,12 @@ struct zx_fbdev
     zx_device_debug_info_t *debug;
 };
 
-#define to_zx_fbdev(helper) container_of(helper, struct zx_fbdev, helper)
+static inline struct zx_fbdev *to_zx_fbdev(struct drm_fb_helper *helper)
+{
+    zx_card_t *zx = helper->client.dev->dev_private;
 
+    return zx->fbdev;
+}
 
 void zx_fbdev_disable_vesa(zx_card_t *zx);
 int zx_fbdev_init(zx_card_t *zx);
