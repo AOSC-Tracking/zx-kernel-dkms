@@ -256,7 +256,7 @@ static int zx_drm_resume(struct drm_device *dev)
     return 0;
 }
 
-static int zx_drm_load(struct drm_device *dev, unsigned long flags)
+static int zx_drm_load(struct drm_device *dev)
 {
     struct pci_dev *pdev = to_pci_dev(dev->dev);
     zx_card_t  *zx = NULL;
@@ -571,7 +571,6 @@ static struct drm_zx_driver zx_drm_driver = {
     #if DRM_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
         .driver_features = ZX_DRM_FEATURE | DRIVER_ATOMIC,
     #endif
-        .load               = zx_drm_load,
         .open               = zx_drm_open,
 
 #if DRM_VERSION_CODE >= KERNEL_VERSION(5,11,0)
@@ -679,6 +678,10 @@ static int zx_pcie_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 #endif
 
     pci_set_drvdata(pdev, dev);
+
+    ret = zx_drm_load(dev);
+    if (ret)
+            goto err_pci;
 
     ret = drm_dev_register(dev, ent->driver_data);
     if (ret)
