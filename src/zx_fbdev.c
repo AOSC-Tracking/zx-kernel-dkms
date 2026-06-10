@@ -432,6 +432,7 @@ int zx_fbdev_deinit(zx_card_t *zx)
 
 void zx_fbdev_set_suspend(zx_card_t *zx, int state)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
     struct zx_fbdev *fbdev = zx->fbdev;
     struct fb_info *info;
 
@@ -456,6 +457,7 @@ void zx_fbdev_set_suspend(zx_card_t *zx, int state)
 
         console_unlock();
     }
+#endif
 }
 
 void zx_fbdev_poll_changed(struct drm_device *dev)
