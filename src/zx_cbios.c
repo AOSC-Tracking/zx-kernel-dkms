@@ -1542,11 +1542,11 @@ int disp_cbios_turn_onoff_screen(disp_info_t *disp_info, int iga, int bOn)
     return (cb_status == CBIOS_OK) ? S_OK : E_FAIL;
 }
 
-int disp_cbios_set_dpms(disp_info_t *disp_info, int device, int dpms_mode)
+int disp_cbios_set_dpms(disp_info_t *disp_info, int device, int dpms_mode, unsigned int flags)
 {
     int status = S_OK;
 
-    if(CBIOS_OK != CBiosSetDisplayDevicePowerState(disp_info->cbios_ext, device, dpms_mode))
+    if(CBIOS_OK != CBiosSetDisplayDevicePowerState(disp_info->cbios_ext, device, dpms_mode, flags))
     {
         status = E_FAIL;
     }

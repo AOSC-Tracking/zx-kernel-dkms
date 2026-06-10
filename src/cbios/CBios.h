@@ -126,7 +126,7 @@ typedef  enum  _CBIOS_CLOCK_TYPE
 #define CBIOS_YCBCR420OUTPUT     8
 #define CBIOS_NONDIGITALOUTPUT   9
 
-
+#define SKIP_VDD_OFF             0x10000
 
 #ifndef CBIOS_FALSE
 #define CBIOS_FALSE   0
@@ -2219,7 +2219,8 @@ typedef CBIOS_STATUS
 typedef CBIOS_STATUS
 (*PCBIOSDDI_SETDEVICEPOWERSTATE)(CBIOS_IN PCBIOS_VOID pvcbe, 
                                  CBIOS_IN CBIOS_U32 DevicesId, 
-                                 CBIOS_IN CBIOS_PM_STATUS PMState);
+                                 CBIOS_IN CBIOS_PM_STATUS PMState,
+                                 CBIOS_IN CBIOS_U32 Flags);
 
 typedef CBIOS_STATUS
 (*PCBIOSDDI_GETEDID)(CBIOS_IN PCBIOS_VOID pvcbe, 
@@ -2545,7 +2546,7 @@ DLLEXPORTS CBIOS_STATUS
 CBiosSetIgaScreenOnOffState(CBIOS_VOID* pcbe, CBIOS_S32 status, CBIOS_UCHAR IGAIndex);
 
 DLLEXPORTS CBIOS_STATUS
-CBiosSetDisplayDevicePowerState(CBIOS_VOID* pcbe, CBIOS_U32 DevicesId, CBIOS_PM_STATUS PMState);
+CBiosSetDisplayDevicePowerState(CBIOS_VOID* pcbe, CBIOS_U32 DevicesId, CBIOS_PM_STATUS PMState, CBIOS_U32 Flags);
 
 DLLEXPORTS CBIOS_STATUS
 CBiosGetDisplayDevicePowerState(CBIOS_VOID* pcbe, CBIOS_U32 DevicesId, PCBIOS_PM_STATUS pPMState);

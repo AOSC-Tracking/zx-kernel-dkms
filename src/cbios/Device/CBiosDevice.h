@@ -54,7 +54,7 @@ CBIOS_STATUS cbDevGetDeviceModeListBufferSize(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_C
 CBIOS_STATUS cbGetDeviceName(PCBIOS_VOID pvcbe,   PCBIOS_GET_DEVICE_NAME  pGetName);
 CBIOS_BOOL cbDevDeviceDetect(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_BOOL bHardcodeDetect, CBIOS_U32 FullDetect);
 CBIOS_U32    cbDevNonDestructiveDeviceDetectByEdid(PCBIOS_VOID pvcbe, PCBIOS_UCHAR pEDIDData, CBIOS_U32 EdidBufferSize);
-CBIOS_STATUS cbDevSetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_PM_STATUS PMState);
+CBIOS_STATUS cbDevSetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_PM_STATUS PMState, CBIOS_U32 Flags);
 CBIOS_STATUS cbDevGetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, PCBIOS_PM_STATUS pPMState);
 
 // DP only interfaces

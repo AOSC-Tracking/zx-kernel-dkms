@@ -110,7 +110,7 @@ int         disp_cbios_set_mode(disp_info_t *disp_info, int crtc, struct drm_dis
 int         disp_cbios_set_hdac_connect_status(disp_info_t *disp_info, int device , int bPresent, int bEldValid);
 int         disp_cbios_turn_onoff_screen(disp_info_t *disp_info, int iga, int on);
 int         disp_cbios_detect_connected_output(disp_info_t *disp_info, int to_detect, int FullDetect);
-int         disp_cbios_set_dpms(disp_info_t *disp_info, int device, int dpms_mode);
+int         disp_cbios_set_dpms(disp_info_t *disp_info, int device, int dpms_mode, unsigned int flags);
 int         disp_cbios_sync_vbios(disp_info_t * disp_info);
 int         disp_cbios_get_active_devices(disp_info_t * disp_info, int * devices);
 int         disp_cbios_set_gamma(disp_info_t *disp_info, int pipe, void* data);

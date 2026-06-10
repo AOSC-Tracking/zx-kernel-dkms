@@ -329,5 +329,6 @@ zx_connector_detect_internal(struct drm_connector *connector, bool force, int Fu
 void zx_restore_drm_connector_state(struct drm_device *dev, struct drm_connector *connector,
                                     struct drm_modeset_acquire_ctx *ctx);
 #endif
+void zx_detect_and_update_connectors(disp_info_t* disp_info, int outp_masks, int hpd_detect, int notify_os);
 
 #endif

@@ -606,7 +606,7 @@ CBIOS_U32 cbDevGetHDAFormatList(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevComm
     return HDAFormatNum;
 }
 
-CBIOS_STATUS cbDevSetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_PM_STATUS PMState)
+CBIOS_STATUS cbDevSetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_PM_STATUS PMState, CBIOS_U32 Flags)
 {
     PCBIOS_EXTENSION_COMMON pcbe = (PCBIOS_EXTENSION_COMMON)pvcbe;
     CBIOS_BOOL bTurnOn = CBIOS_FALSE;
@@ -623,7 +623,7 @@ CBIOS_STATUS cbDevSetDisplayDevicePowerState(PCBIOS_VOID pvcbe, PCBIOS_DEVICE_CO
 
     if (pDevCommon->pfncbDeviceOnOff)
     {
-        pDevCommon->pfncbDeviceOnOff(pcbe, pDevCommon, bTurnOn);
+        pDevCommon->pfncbDeviceOnOff(pcbe, pDevCommon, bTurnOn, Flags);
     }
     else
     {

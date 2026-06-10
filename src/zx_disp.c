@@ -1174,13 +1174,16 @@ void disp_post_resume(struct drm_device *dev)
         disp_cbios_brightness_set(disp_info, disp_info->brightness);
     }
 
-    drm_helper_hpd_irq_event(dev);
+    zx_detect_and_update_connectors(disp_info, disp_info->support_output, 1, 1);
 }
 
 static void disp_turn_off_crtc_output(disp_info_t *disp_info)
 {
     unsigned int devices[MAX_CORE_CRTCS] = {0};
-    unsigned int index, detect_devices = 0;
+    unsigned int index, detect_devices = 0, output = 0, flags = 0;
+    zx_card_t*  zx_card = disp_info->zx_card;
+    struct drm_device*    drm = zx_card->drm_dev;
+    struct drm_connector* connector = NULL;
 
     zx_info("To turn off igas and devices.\n");
 
@@ -1191,7 +1194,23 @@ static void disp_turn_off_crtc_output(disp_info_t *disp_info)
         detect_devices |= devices[index];
     }
     disp_cbios_detect_connected_output(disp_info, detect_devices, 0);
-    disp_cbios_set_dpms(disp_info, detect_devices, ZX_DPMS_OFF);
+    while(detect_devices)
+    {
+        output = GET_LAST_BIT(detect_devices);
+        list_for_each_entry(connector, &drm->mode_config.connector_list, head)
+        {
+            if(to_zx_connector(connector)->output_type == output)
+            {
+                break;
+            }
+        }
+        if(connector->connector_type == DRM_MODE_CONNECTOR_eDP)
+        {
+            flags |= SKIP_VDD_OFF;
+        }
+        disp_cbios_set_dpms(disp_info, output, ZX_DPMS_OFF, flags);
+        detect_devices &= (~output);
+    }
  
     for(index = 0; index < MAX_CORE_CRTCS; index++)
     {
@@ -1231,8 +1250,6 @@ int  zx_init_modeset(struct drm_device *dev)
     disp_sync_data_with_Vbios(disp_info, 0);
 
     disp_cbios_query_vbeinfo(disp_info);
-
-    disp_turn_off_crtc_output(disp_info);
 
     zx_core_interface->update_adapter_info(zx_card->adapter, adapter_info);
 
@@ -1284,6 +1301,8 @@ int  zx_init_modeset(struct drm_device *dev)
     }
 
     disp_output_init(disp_info);
+
+    disp_turn_off_crtc_output(disp_info);
 
     disp_hotplug_init(disp_info);
 

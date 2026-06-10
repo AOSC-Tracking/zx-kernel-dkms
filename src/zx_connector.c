@@ -648,3 +648,67 @@ void zx_restore_drm_connector_state(struct drm_device *dev, struct drm_connector
 }
 
 #endif
+
+//outp_masks: outputs that want to detect
+//hpd_detct: 1, called from hpd interrupt, 0, from polling thread or OS poll
+//notify_os: if any change, whether to notify OS.
+void zx_detect_and_update_connectors(disp_info_t* disp_info, int outp_masks, int hpd_detect, int notify_os)
+{
+    zx_card_t*  zx_card = disp_info->zx_card;
+    struct drm_device*  drm = zx_card->drm_dev;
+    struct drm_mode_config *mode_config = &drm->mode_config;
+    struct  drm_connector* connector = NULL;
+    enum drm_connector_status old_status;
+    zx_connector_t*  zx_connector = NULL;
+    unsigned int changed = 0;
+#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    struct drm_connector_list_iter conn_iter;
+#endif
+
+    if(!outp_masks)
+    {
+        return;
+    }
+    mutex_lock(&mode_config->mutex);
+
+#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+    drm_connector_list_iter_begin(drm, &conn_iter);
+#endif
+
+#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+    drm_for_each_connector_iter(connector, &conn_iter)
+#else
+
+#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
+    drm_for_each_connector(connector, drm)
+#else
+    list_for_each_entry(connector, &drm->mode_config.connector_list, head)
+#endif
+
+#endif
+    {
+        zx_connector =  to_zx_connector(connector);
+        if(!(zx_connector->output_type & outp_masks))
+        {
+            continue;
+        }
+        old_status = connector->status;
+        connector->status = zx_connector_detect_internal(connector, 0, hpd_detect);
+
+        if(old_status != connector->status || zx_connector->edid_changed)
+        {
+            changed = 1;
+        }
+    }
+#if DRM_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+    drm_connector_list_iter_end(&conn_iter);
+#endif
+
+    mutex_unlock(&mode_config->mutex);
+
+    if(changed && notify_os)
+    {
+        drm_kms_helper_hotplug_event(drm);
+    }
+}
+

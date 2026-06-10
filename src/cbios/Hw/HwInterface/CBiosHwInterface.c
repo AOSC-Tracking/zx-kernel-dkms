@@ -622,6 +622,7 @@ CBIOS_STATUS  cbHwSyncDataWithVbios(PCBIOS_VOID  pvcbe, PCBIOS_VBIOS_DATA_PARAM 
     PCBIOS_DEVICE_COMMON    pDevCommon = CBIOS_NULL;
     CBIOS_GET_DEV_COMB      GetDevComb = {0};
     CBIOS_DEVICE_COMB       DeviceComb = {0};
+    PCBIOS_DP_CONTEXT       pDpContext = CBIOS_NULL;
 
 #ifdef CHECK_CHIPENABLE
     if (!cbHWIsChipEnable(pcbe))
@@ -655,6 +656,14 @@ CBIOS_STATUS  cbHwSyncDataWithVbios(PCBIOS_VOID  pvcbe, PCBIOS_VBIOS_DATA_PARAM 
                     if (pDevCommon)
                     {
                         pDevCommon->PowerState = CBIOS_PM_ON;
+                        if(pDevCommon->PortConnType == CBIOS_EDP_CONN)
+                        {
+                            pDpContext = container_of(pDevCommon, PCBIOS_DP_CONTEXT, Common);
+                            if(pDpContext)
+                            {
+                                pDpContext->DPMonitorContext.VddStatus = 1;
+                            }
+                        }
                     }
                 }
             }   

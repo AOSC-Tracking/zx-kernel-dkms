@@ -50,7 +50,7 @@ typedef CBIOS_BOOL
 (*PFN_cbDeviceDetect)(PCBIOS_VOID pvcbe, PCBIOS_VOID pDevCommon, CBIOS_BOOL bHardcodeDetected, CBIOS_U32 FullDetect);
 
 typedef CBIOS_VOID 
-(*PFN_cbDeviceOnOff)(PCBIOS_VOID pvcbe, PCBIOS_VOID pDevCommon, CBIOS_BOOL bOn);
+(*PFN_cbDeviceOnOff)(PCBIOS_VOID pvcbe, PCBIOS_VOID pDevCommon, CBIOS_BOOL bOn, CBIOS_U32 Flags);
 
 typedef CBIOS_VOID 
 (*PFN_cbQueryMonitorAttribute)(PCBIOS_VOID pvcbe, PCBIOS_VOID pDevCommon, PCBiosMonitorAttribute pMonitorAttribute);
@@ -73,6 +73,7 @@ typedef struct _CBIOS_DEVICE_COMMON
     struct
     {
         CBIOS_ACTIVE_TYPE           DeviceType;
+        CBIOS_CONNECTOR_TYPE        PortConnType;
         CBIOS_MONITOR_TYPE          SupportMonitorType;
         CBIOS_U32                   I2CBus; // real I2C bus used to read EDID from monitor
         CBIOS_U8                    HPDPin;

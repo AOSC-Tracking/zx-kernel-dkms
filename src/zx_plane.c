@@ -554,7 +554,7 @@ int zx_get_scanout_buffer(struct drm_plane *plane, struct drm_scanout_buffer *sb
     if (!zxfb2->obj)
         return -EINVAL;
 
-#if IS_ENABLED(CONFIG_KYLIN_KERNEL)
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 16, 0)
     if (drm_gem_vmap_unlocked(&zxfb2->obj->base, &sb->map[0]))
         return -EINVAL;
 #else

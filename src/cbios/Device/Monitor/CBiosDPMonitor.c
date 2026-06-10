@@ -79,12 +79,14 @@ static CBIOS_BOOL cbDPMonitor_EDPAuxPowerSeqCtrl(PCBIOS_EXTENSION_COMMON pcbe, P
             cbDebugPrint((MAKE_LEVEL(DP, ERROR), "%s: can't wait HPD high from sink\n", FUNCTION_NAME));
             return CBIOS_FALSE;
         }
+        pDPMonitorContext->VddStatus = 1;
     }
     else
     {
         // eDP power sequence off for aux channel operation
         // disable vdd
         cbDIU_EDP_ControlVDDSignal(pcbe, pDPMonitorContext, DPModuleIndex, CBIOS_FALSE);
+        pDPMonitorContext->VddStatus = 0;
     }
     return CBIOS_TRUE;
 }
@@ -1292,7 +1294,10 @@ CBIOS_BOOL cbDPMonitor_Detect(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMo
     {
         if (pDevCommon->PowerState != CBIOS_PM_ON) //if eDP already power on, skip aux power sequence
         {
-            cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, CBIOS_TRUE);
+            if(!pDPMonitorContext->VddStatus)
+            {
+                cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, CBIOS_TRUE);
+            }
         }
     }
 
@@ -1336,7 +1341,10 @@ CBIOS_BOOL cbDPMonitor_Detect(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMo
     {
         if (pDevCommon->PowerState != CBIOS_PM_ON) //restore VDD status
         {
-            cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, CBIOS_FALSE);
+            if(!bConnected)
+            {
+                cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, CBIOS_FALSE);
+            }
         }
     }
 
@@ -1519,7 +1527,7 @@ CBIOS_VOID cbDPMonitor_QueryAttribute(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTE
     }
 }
 
-CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, CBIOS_BOOL bOn)
+CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, CBIOS_BOOL bOn, CBIOS_U32 Flags)
 {
     PCBIOS_EXTENSION_COMMON pcbe          = (PCBIOS_EXTENSION_COMMON)pvcbe;
     PCBIOS_DEVICE_COMMON    pDevCommon    = pDPMonitorContext->pDevCommon;
@@ -1536,7 +1544,7 @@ CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMon
          cbDPMonitor_SetDither(pcbe, pDPMonitorContext->bpc, CBIOS_TRUE, DPModuleIndex);
 
         // 1. start EDP panel power supply
-        if (bEDPMode)
+        if (bEDPMode && !pDPMonitorContext->VddStatus)
         {
             cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, bOn);
         }
@@ -1625,7 +1633,10 @@ CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMon
         // 6. stop EDP panel power supply
         if (bEDPMode)
         {
-            cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, bOn);
+            if(!(Flags & SKIP_VDD_OFF))
+            {
+                cbDPMonitor_EDPAuxPowerSeqCtrl(pcbe, pDPMonitorContext, DPModuleIndex, bOn);
+            }
         }
 
         cbDPMonitor_SetDither(pcbe, pDPMonitorContext->bpc, CBIOS_FALSE, DPModuleIndex);

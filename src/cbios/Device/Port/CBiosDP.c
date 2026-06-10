@@ -302,7 +302,7 @@ EXIT:
     return bConnected;
 }
 
-static CBIOS_VOID cbDPPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_BOOL bOn)
+static CBIOS_VOID cbDPPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_BOOL bOn, CBIOS_U32 Flags)
 {
     PCBIOS_DP_CONTEXT     pDpContext = container_of(pDevCommon, PCBIOS_DP_CONTEXT, Common);
     CBIOS_MODULE_INDEX    DPModuleIndex = CBIOS_MODULE_INDEX_INVALID;
@@ -343,7 +343,7 @@ static CBIOS_VOID cbDPPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COM
             {
         #if DP_MONITOR_SUPPORT
                 cbPHY_DP_InitEPHY(pcbe, DPModuleIndex);
-                cbDPMonitor_OnOff(pcbe, &pDpContext->DPMonitorContext, bOn);
+                cbDPMonitor_OnOff(pcbe, &pDpContext->DPMonitorContext, bOn, Flags);
         #endif
             }
         }
@@ -352,7 +352,7 @@ static CBIOS_VOID cbDPPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COM
             if ((pDpContext->Common.CurrentMonitorType == CBIOS_MONITOR_TYPE_DP) || (pDpContext->Common.CurrentMonitorType == CBIOS_MONITOR_TYPE_PANEL))
             {
         #if DP_MONITOR_SUPPORT
-                cbDPMonitor_OnOff(pcbe, &pDpContext->DPMonitorContext, bOn);
+                cbDPMonitor_OnOff(pcbe, &pDpContext->DPMonitorContext, bOn, Flags);
         #endif
             }
         }
@@ -615,6 +615,7 @@ PCBIOS_DEVICE_COMMON cbDPPort_Init(PCBIOS_VOID pvcbe, PVCP_INFO_chx pVCP, CBIOS_
         pDeviceCommon->DispSource.ModuleList.HDMIModule.Index = CBIOS_MODULE_INDEX1;
         pDeviceCommon->DispSource.ModuleList.HDCPModule.Index = CBIOS_MODULE_INDEX1;
         pDeviceCommon->DispSource.ModuleList.HDACModule.Index = CBIOS_MODULE_INDEX1;
+        pDeviceCommon->PortConnType = pcbe->SysBiosInfo.Dp0PortConnType;
     }
     else if (DeviceType == CBIOS_TYPE_DP6)
     {
@@ -624,6 +625,7 @@ PCBIOS_DEVICE_COMMON cbDPPort_Init(PCBIOS_VOID pvcbe, PVCP_INFO_chx pVCP, CBIOS_
         pDeviceCommon->DispSource.ModuleList.HDMIModule.Index = CBIOS_MODULE_INDEX2;
         pDeviceCommon->DispSource.ModuleList.HDCPModule.Index = CBIOS_MODULE_INDEX2;
         pDeviceCommon->DispSource.ModuleList.HDACModule.Index = CBIOS_MODULE_INDEX2;
+        pDeviceCommon->PortConnType = pcbe->SysBiosInfo.Dp1PortConnType;
     }
 
     pDpContext->HDMIMonitorContext.pDevCommon = pDeviceCommon;
@@ -636,6 +638,7 @@ PCBIOS_DEVICE_COMMON cbDPPort_Init(PCBIOS_VOID pvcbe, PVCP_INFO_chx pVCP, CBIOS_
     pDpContext->DPMonitorContext.PWMConfig = pVCP->PWMConfig;
     pDpContext->DPMonitorContext.PWMBacklightValue = pVCP->PWMBacklightValue;
     pDpContext->DPMonitorContext.PWMFrequencyCounter = pVCP->PWMFrequencyCounter;
+    pDpContext->DPMonitorContext.VddStatus = 0;
 
     // currently only chx001 support DP 1.2
     if (pcbe->ChipID == CHIPID_CHX001 || pcbe->ChipID == CHIPID_CHX002)

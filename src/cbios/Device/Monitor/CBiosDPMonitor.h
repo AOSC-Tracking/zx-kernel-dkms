@@ -115,6 +115,8 @@ typedef struct _CBIOS_DP_MONITOR_CONTEXT
     CBIOS_U8         GpioForEDP1BackLight;
     CBIOS_U8         GpioForEDP2Power;
     CBIOS_U8         GpioForEDP2BackLight;
+    // eDP Vdd status
+    CBIOS_BOOL      VddStatus;
 
     //PWM
     CBIOS_U8         PWMConfig;
@@ -132,6 +134,6 @@ CBIOS_BOOL cbDPMonitor_Detect(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMo
 CBIOS_VOID cbDPMonitor_SetMode(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, PCBIOS_DISP_MODE_PARAMS pModeParams);
 CBIOS_VOID cbDPMonitor_UpdateModeInfo(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, PCBIOS_DISP_MODE_PARAMS pModeParams);
 CBIOS_VOID cbDPMonitor_QueryAttribute(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, PCBiosMonitorAttribute pMonitorAttribute);
-CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, CBIOS_BOOL bOn);
+CBIOS_VOID cbDPMonitor_OnOff(PCBIOS_VOID pvcbe, PCBIOS_DP_MONITOR_CONTEXT pDPMonitorContext, CBIOS_BOOL bOn, CBIOS_U32 Flags);
 CBIOS_VOID cbDPMonitor_SetDither(PCBIOS_VOID pvcbe, CBIOS_U32 bpc, CBIOS_BOOL bOn, CBIOS_MODULE_INDEX DPModuleIndex);
 #endif

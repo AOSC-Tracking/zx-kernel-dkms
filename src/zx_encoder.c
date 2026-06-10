@@ -37,15 +37,25 @@ void zx_encoder_disable(struct drm_encoder *encoder)
     disp_info_t *disp_info = (disp_info_t *)zx_card->disp_info;
     zx_encoder_t *zx_encoder = to_zx_encoder(encoder);
     zx_connector_t *zx_connector = zx_encoder_get_connector(zx_encoder);
+    unsigned int flags = 0;
+    struct drm_crtc *crtc = NULL;
 
     if(zx_encoder->enc_dpms != ZX_DPMS_OFF)
     {
         zx_audio_set_connect(zx_connector, 0);
 
         zx_info("To turn off power of device: 0x%x.\n", zx_encoder->output_type);
-
+        //for edp's mode-setting, called by disable_outputs, no need to off vdd, and it can save lots of time
+        crtc = zx_connector->base_connector.state->crtc;
+        if(crtc && zx_connector->base_connector.connector_type == DRM_MODE_CONNECTOR_eDP)
+        {
+            if(crtc->state->mode_changed && crtc->state->enable && crtc->state->active)
+            {
+                flags |= SKIP_VDD_OFF;
+            }
+        }
         zx_mutex_lock(zx_connector->conn_mutex);
-        disp_cbios_set_dpms(disp_info, zx_encoder->output_type, ZX_DPMS_OFF);
+        disp_cbios_set_dpms(disp_info, zx_encoder->output_type, ZX_DPMS_OFF, flags);
         zx_mutex_unlock(zx_connector->conn_mutex);
         zx_encoder->enc_dpms = ZX_DPMS_OFF;
     }
@@ -64,7 +74,7 @@ void zx_encoder_enable(struct drm_encoder *encoder)
         zx_info("To turn on power of device: 0x%x.\n", zx_encoder->output_type);
 
         zx_mutex_lock(zx_connector->conn_mutex);
-        disp_cbios_set_dpms(disp_info, zx_encoder->output_type, ZX_DPMS_ON);
+        disp_cbios_set_dpms(disp_info, zx_encoder->output_type, ZX_DPMS_ON, 0);
         zx_mutex_unlock(zx_connector->conn_mutex);
         zx_encoder->enc_dpms = ZX_DPMS_ON;
 

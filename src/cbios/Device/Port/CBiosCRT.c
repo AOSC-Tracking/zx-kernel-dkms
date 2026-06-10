@@ -52,7 +52,7 @@ static CBIOS_BOOL cbCRTPort_DeviceDetect(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DE
     return bConnected;
 }
 
-static CBIOS_VOID cbCRTPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_BOOL bOn)
+static CBIOS_VOID cbCRTPort_OnOff(PCBIOS_EXTENSION_COMMON pcbe, PCBIOS_DEVICE_COMMON pDevCommon, CBIOS_BOOL bOn, CBIOS_U32 Flags)
 {
     PCBIOS_CRT_CONTEXT pCrtContext = container_of(pDevCommon, PCBIOS_CRT_CONTEXT, Common);
     CBIOS_MONITOR_TYPE MonitorType = pDevCommon->CurrentMonitorType;
