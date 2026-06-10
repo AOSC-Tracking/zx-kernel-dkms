@@ -34,6 +34,8 @@ typedef int (*zx_ioctl_t)(zx_file_t* priv, unsigned int cmd, unsigned long arg);
 
 typedef int (*irq_func_t)(void*);
 
+struct zx_fbdev;
+
 typedef struct
 {
     void              *adapter;
@@ -67,7 +69,7 @@ typedef struct
     int                 keyboard_rc_keynum;
     void                *debugfs_dev;
     struct device       *hwmon_dev;
-    void                *fbdev;
+    struct zx_fbdev     *fbdev;
     struct backlight_device *backlight_dev;
 
     struct device      *pci_device;  //used when do dma page map.
