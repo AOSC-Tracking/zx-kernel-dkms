@@ -439,8 +439,11 @@ void zx_fbdev_set_suspend(zx_card_t *zx, int state)
     {
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 2, 0)
         info = fbdev->helper.fbdev;
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
+        info = fbdev->helper.info;
 #else
-	info = fbdev->helper.info;
+        WARN_ONCE(true, "we really shouldn't reach here");
+        return;
 #endif
 
         console_lock();
@@ -450,8 +453,11 @@ void zx_fbdev_set_suspend(zx_card_t *zx, int state)
         {
             fb_set_suspend(info, state);
         }
-#else
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
         drm_fb_helper_set_suspend(&fbdev->helper, state);
+#else
+        WARN_ONCE(true, "we really shouldn't reach here");
+        return;
 #endif
 
         console_unlock();

@@ -47,6 +47,8 @@
 #else
 #include <drm/drm_client_setup.h>
 #endif
+
+#include <drm/drm_client_event.h>
 #endif
 
 #define DRIVER_NAME         "zx"
@@ -157,6 +159,17 @@ static unsigned int zx_vga_set_decode(struct pci_dev *pdev, bool state)
 
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
+/* HACK! */
+#define drm_client_dev_suspend(dev) \
+	zx_fbdev_set_suspend((dev)->dev_private, 1)
+#define drm_client_dev_resume(dev) \
+	zx_fbdev_set_suspend((dev)->dev_private, 0)
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(6, 19, 0)
+#define drm_client_dev_suspend(x) (drm_client_dev_suspend)((x), false)
+#define drm_client_dev_resume(x) (drm_client_dev_resume)((x), false)
+#endif
+
 static int zx_drm_suspend(struct drm_device *dev, pm_message_t state)
 {
     zx_card_t* zx = dev->dev_private;
@@ -169,7 +182,7 @@ static int zx_drm_suspend(struct drm_device *dev, pm_message_t state)
 #ifndef __mips__
     if(zx->zxfb_enable)
     {
-        zx_fbdev_set_suspend(zx, 1);
+        drm_client_dev_suspend(dev);
         zx_info("drm suspend: save drmfb status finished.\n");
     }
 
@@ -240,7 +253,7 @@ static int zx_drm_resume(struct drm_device *dev)
 
     if(zx->zxfb_enable)
     {
-        zx_fbdev_set_suspend(zx, 0);
+        drm_client_dev_resume(dev);
         zx_info("drm resume: restore drmfb status finished.\n");
     }
 
