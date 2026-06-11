@@ -56,6 +56,18 @@ FB_GEN_DEFAULT_DEFERRED_IOMEM_OPS(zx, drm_fb_helper_damage_range, drm_fb_helper_
 FB_GEN_DEFAULT_DEFERRED_IO_OPS(zx, drm_fb_helper_damage_range, drm_fb_helper_damage_area)
 #endif
 
+#if DRM_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+static void zx_fbdev_fb_destroy(struct fb_info *info)
+{
+    struct drm_fb_helper *fb_helper = info->par;
+    struct zx_fbdev *zxfb = to_zx_fbdev(fb_helper);
+
+    drm_fb_helper_fini(fb_helper);
+    drm_framebuffer_remove(fb_helper->fb);
+    drm_client_release(&fb_helper->client);
+}
+#endif
+
 static struct fb_ops zxfb_ops = {
     .owner = THIS_MODULE,
 #if DRM_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
@@ -85,6 +97,9 @@ static struct fb_ops zxfb_ops = {
     .fb_imageblit = cfb_imageblit,
 #endif
     .fb_mmap    = zxfb_mmap,
+#if LINUX_VERSION_CODE > KERNEL_VERSION(6, 15, 0)
+    .fb_destroy = zx_fbdev_fb_destroy,
+#endif
 };
 
 #if DRM_VERSION_CODE < KERNEL_VERSION(5, 2, 0)
@@ -335,6 +350,7 @@ int zx_fbdev_init(zx_card_t *zx)
 
     fbdev->debug = zx_debugfs_add_device_node(zx->debugfs_dev, zx_get_current_pid(), fbdev->gpu_device);
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
     drm_fb_helper_prepare(zx->drm_dev, &fbdev->helper, &zx_fb_helper_funcs);
 #else
@@ -359,7 +375,7 @@ int zx_fbdev_init(zx_card_t *zx)
 #else
     drm_fb_helper_initial_config(&fbdev->helper);
 #endif
-
+#endif // 6.15.0
 
     return 0;
 }
@@ -369,7 +385,6 @@ int zx_fbdev_deinit(zx_card_t *zx)
 {
     struct zx_fbdev *fbdev = zx->fbdev;
     struct drm_zx_framebuffer *fb;
-    struct fb_info *info;
 
     if (!fbdev)
     {
@@ -378,16 +393,17 @@ int zx_fbdev_deinit(zx_card_t *zx)
 
     fb = fbdev->fb;
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 2, 0)
-    info = fbdev->helper.fbdev;
-#else
-    info = fbdev->helper.info;
+    struct fb_info *info = fbdev->helper.fbdev;
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
+    struct fb_info *info = fbdev->helper.info;
 #endif
+
 #if DRM_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
     unregister_framebuffer(info);
 #else
 #if DRM_VERSION_CODE < KERNEL_VERSION(6, 2, 0)
     drm_fb_helper_unregister_fbi(&fbdev->helper);
-#else
+#elif DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
     drm_fb_helper_unregister_info(&fbdev->helper);
 #endif
 #endif
@@ -415,11 +431,13 @@ int zx_fbdev_deinit(zx_card_t *zx)
         fb->obj = NULL;
     }
 
+#if DRM_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
     drm_fb_helper_fini(&fbdev->helper);
     if(fbdev->fb)
     {
         drm_framebuffer_remove(&fbdev->fb->base);
     }
+#endif
 
     zx_debugfs_remove_device_node(zx->debugfs_dev, fbdev->debug);
     zx_core_interface->destroy_device(zx->adapter, fbdev->gpu_device);
@@ -464,6 +482,7 @@ void zx_fbdev_set_suspend(zx_card_t *zx, int state)
     }
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 12, 0)
 void zx_fbdev_poll_changed(struct drm_device *dev)
 {
     zx_card_t*  zx = dev->dev_private;
@@ -478,3 +497,4 @@ void zx_fbdev_poll_changed(struct drm_device *dev)
         drm_fb_helper_hotplug_event(&fbdev->helper);
     }
 }
+#endif

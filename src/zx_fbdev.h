@@ -6,7 +6,9 @@
 struct zx_fbdev
 {
     unsigned int gpu_device;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 15, 0)
     struct drm_fb_helper helper;
+#endif
     struct drm_zx_framebuffer *fb;
     zx_device_debug_info_t *debug;
 };
