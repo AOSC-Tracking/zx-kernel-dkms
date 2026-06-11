@@ -222,9 +222,9 @@ int zx_fbdev_probe(struct drm_fb_helper *helper, struct drm_fb_helper_surface_si
 #endif
 
     info->skip_vt_switch = true;
-    fbdev->helper.fb = &fb->base;
+    helper->fb = &fb->base;
 #if DRM_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
-    fbdev->helper.funcs = &zx_fb_helper_funcs,
+    helper->funcs = &zx_fb_helper_funcs,
 #endif
     zx_vsprintf(info->fix.id, "%s", "zxfb");
 
@@ -246,7 +246,7 @@ int zx_fbdev_probe(struct drm_fb_helper *helper, struct drm_fb_helper_surface_si
     drm_fb_helper_fill_fix(info, fb->base.pitches[0], fb->base.format->depth);
     drm_fb_helper_fill_var(info, &fbdev->helper, sizes->fb_width, sizes->fb_height);
 #else
-    drm_fb_helper_fill_info(info, &fbdev->helper, sizes);
+    drm_fb_helper_fill_info(info, helper, sizes);
 #endif
 
     DRM_DEBUG_KMS("screen_base=0x%p,screen_size=0x%lx,smem_start=0x%lx,smem_len=0x%x,xres=%d,yres=%d\n",
